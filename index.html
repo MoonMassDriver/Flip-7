@@ -59,7 +59,6 @@
         .round-stats { display: flex; align-items: center; justify-content: center; gap: 15px; color: var(--gold); font-size: 0.8rem; font-weight: bold; flex-shrink: 0; opacity: 0.8; }
         .info-btn { font-size: 1.3rem; cursor: pointer; opacity: 0.8; color: var(--gold); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
         
-        /* PLAYER AREA LAYOUT ADJUSTMENTS */
         .player-area { flex: 1; border: 2px solid #334155; border-radius: 14px; padding: 10px; position: relative; display: flex; flex-direction: column; overflow: hidden; transition: all 0.4s ease; background: rgba(15, 23, 42, 0.5); cursor: pointer; }
         .player-area.active-player { border: 2px solid #ffffff; background: rgba(255,255,255,0.05); }
         .player-area.stay-tint { border: 2px solid var(--stay-border); background: var(--stay-muted) !important; opacity: 0.6; pointer-events: none; }
@@ -76,8 +75,8 @@
         #area-3 .name-tag { color: var(--p4); border: 1px solid var(--p4); }
         .current-run { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1; }
         
-        /* HAND MOVED TO RIGHT */
-        .hand { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; align-content: flex-start; flex: 1; overflow-y: auto; pointer-events: none; }
+        /* Centered Hand */
+        .hand { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: flex-start; flex: 1; overflow-y: auto; pointer-events: none; }
         
         .card { width: 38px; height: 52px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0; text-align: center; }
         .card.mod { background: #22c55e; color: white; border: 1.5px solid #166534; }
@@ -86,16 +85,22 @@
         .card.mult-card { background: var(--gold); color: black; border: 1.5px solid white; font-size: 0.8rem; }
         .card.is-match { background: var(--red) !important; color: white; animation: shake 0.4s; }
         
-        /* STAY BUTTON MOVED TO LEFT */
         .stay-btn-inline { position: absolute; bottom: 12px; left: 12px; background: #1e293b; color: white; border: 2px solid rgba(255,255,255,0.5); padding: 14px 24px; border-radius: 12px; font-weight: 900; font-size: 1rem; text-transform: uppercase; display: none; cursor: pointer; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .active-player .stay-btn-inline:not(.locked) { display: block; border-color: var(--gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
         
-        /* SAVED STATUS MOVED TO LEFT */
         .stayed-status { position: absolute; bottom: 12px; left: 12px; padding: 10px 20px; background: repeating-linear-gradient(45deg, #1e293b, #1e293b 10px, #334155 10px, #334155 20px); border: 2px solid var(--stay-border); color: #94a3b8; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; border-radius: 8px; display: none; pointer-events: none; }
         .stay-tint .stayed-status { display: block; }
 
         .flip7-alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; font-weight: 900; padding: 10px 20px; border-radius: 8px; border: 4px solid white; z-index: 1000; display: none; }
-        #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 24px; border-radius: 30px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 2px solid white; text-align: center; min-width: 250px; }
+        
+        /* Single Line Prompt Overlay */
+        #prompt-overlay { 
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
+            background: var(--gold); color: black; padding: 8px 20px; border-radius: 30px; 
+            font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            border: 2px solid white; text-align: center; 
+            min-width: 320px; font-size: 0.8rem; white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -214,8 +219,7 @@ const audio = {
         gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.4);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.4);
     }
 };
 
@@ -396,8 +400,13 @@ const game = {
         } else { 
             this.pendingActionCard = item.card;
             const overlay = document.getElementById('prompt-overlay');
-            const msg = item.card.val === '2nd CHANCE' ? 'GIFT SECOND 2nd CHANCE' : 'CHOOSE TARGET';
-            overlay.innerHTML = `${msg}<br><span style="color:var(--p4)">${item.card.val}</span>`;
+            
+            let msg = '';
+            if (item.card.val === '2nd CHANCE') msg = 'GIFT SECOND 2nd CHANCE';
+            else if (item.card.val === 'FREEZE') msg = 'CHOOSE TARGET TO FREEZE';
+            else if (item.card.val === 'FLIP 3') msg = 'CHOOSE TARGET TO FLIP 3';
+            
+            overlay.innerHTML = msg;
             overlay.style.display = 'block'; 
             this.updateUI(); 
         }
