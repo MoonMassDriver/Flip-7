@@ -6,7 +6,8 @@
     <title>Flip 7</title>
     <style>
         :root { 
-            --bg: #0f172a; --p1: #3b82f6; --p2: #22c55e; --p3: #e11d48; --p4: #a855f7; --gold: #fbbf24; --red: #ef4444; 
+            --bg: #0f172a;
+            --p1: #3b82f6; --p2: #22c55e; --p3: #e11d48; --p4: #a855f7; --gold: #fbbf24; --red: #ef4444; 
             --ice-muted: #0c1e35; --ice-border: #0ea5e9;
             --bust-muted: #210808; --bust-border: #7f1d1d;
             --stay-muted: #1e293b; --stay-border: #475569;
@@ -16,7 +17,7 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg); color: white; margin: 0; 
             height: 100vh; height: -webkit-fill-available;
-            overflow: hidden; display: flex; flex-direction: column; 
+            overflow: hidden; display: flex; flex-direction: column;
         }
         
         #rules-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
@@ -80,29 +81,11 @@
         .card.mult-card { background: var(--gold); color: black; border: 1.5px solid white; font-size: 0.8rem; }
         .card.is-match { background: var(--red) !important; color: white; animation: shake 0.4s; }
         
-        .stay-btn-inline { 
-            position: absolute; 
-            bottom: 12px; 
-            right: 12px; 
-            background: #1e293b; 
-            color: white; 
-            border: 2px solid rgba(255,255,255,0.5); 
-            padding: 14px 24px; 
-            border-radius: 12px; 
-            font-weight: 900; 
-            font-size: 1rem; 
-            text-transform: uppercase; 
-            display: none; 
-            cursor: pointer; 
-            z-index: 5;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        .stay-btn-inline { position: absolute; bottom: 12px; right: 12px; background: #1e293b; color: white; border: 2px solid rgba(255,255,255,0.5); padding: 14px 24px; border-radius: 12px; font-weight: 900; font-size: 1rem; text-transform: uppercase; display: none; cursor: pointer; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .active-player .stay-btn-inline:not(.locked) { display: block; border-color: var(--gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
         
-        .active-player .stay-btn-inline:not(.locked) {
-            display: block;
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-        }
+        .stayed-status { position: absolute; bottom: 12px; right: 12px; padding: 10px 20px; background: repeating-linear-gradient(45deg, #1e293b, #1e293b 10px, #334155 10px, #334155 20px); border: 2px solid var(--stay-border); color: #94a3b8; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; border-radius: 8px; display: none; pointer-events: none; }
+        .stay-tint .stayed-status { display: block; }
 
         .flip7-alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; font-weight: 900; padding: 10px 20px; border-radius: 8px; border: 4px solid white; z-index: 1000; display: none; }
         #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 24px; border-radius: 30px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 2px solid white; text-align: center; min-width: 250px; }
@@ -119,9 +102,9 @@
         <ul class="rules-list">
             <li><strong>WIN:</strong> First to 200 points.</li>
             <li><strong>DRAW:</strong> Tap your player box to draw.</li>
-            <li><strong>BUST:</strong> Don't draw a duplicate number.</li>
+            <li><strong>Bust:</strong> If you draw a duplicate Number Card, your turns end and your points for that round go to 0.</li>
             <li><strong>DECK:</strong> Higher numbers are more common than lower numbers (e.g., twelve 12s, but only two 2s).</li>
-            <li><strong>STAY:</strong> Tap "Stay" to save points and end turn.</li>
+            <li><strong>Stay:</strong> Tap "Stay" to save points and end your turns for the round.</li>
             <li><strong>FLIP 7:</strong> Reach 7 unique numbers for +15.</li>
         </ul>
 
@@ -129,11 +112,11 @@
         <div class="guide-grid">
             <div class="guide-item">
                 <div class="mini-card mod">+4</div>
-                <div class="guide-text"><strong>Value Mods</strong> Adds flat points. <em>Modifiers are NOT doubled by X2 cards.</em></div>
+                <div class="guide-text"><strong>Plus Points</strong> Adds points, one each in a deck, are not duplicates of Number Cards, and can't be multiplied.</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card mult">X2</div>
-                <div class="guide-text"><strong>Multiplier</strong> Doubles the value of <strong>Number Cards</strong> only.</div>
+                <div class="guide-text"><strong>X2</strong> Doubles the value of Number Cards. One per deck.</div>
             </div>
         </div>
 
@@ -141,11 +124,11 @@
         <div class="guide-grid" style="margin-top:10px;">
             <div class="guide-item">
                 <div class="mini-card spec">FLIP 3</div>
-                <div class="guide-text"><strong>Flip 3</strong> Force yourself or a target to draw 3 cards.</div>
+                <div class="guide-text"><strong>Flip 3</strong> Force someone (or yourself) to immediately draw 3 cards.</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card ice">FREEZE</div>
-                <div class="guide-text"><strong>Freeze</strong> End turn and bank current score immediately.</div>
+                <div class="guide-text"><strong>Freeze</strong> Lock the score and end turns of someone (or yourself) for that round.</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card spec">2nd CHANCE</div>
@@ -188,10 +171,10 @@
         <span class="info-btn" onclick="game.toggleRules(true)">ⓘ</span>
         <span>DECK: <span id="deck-left">94</span></span>
     </div>
-    <div id="area-0" class="player-area" onclick="game.handleAreaTap(0)"><div id="f7-0" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-0" class="name-tag">P1</div><div class="score-info"><span id="t0">0</span><div id="r0" class="current-run">0</div></div></div><div id="hand-0" class="hand"></div><button id="stay-0" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(0)">Stay</button></div>
-    <div id="area-1" class="player-area" onclick="game.handleAreaTap(1)"><div id="f7-1" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-1" class="name-tag">P2</div><div class="score-info"><span id="t1">0</span><div id="r1" class="current-run">0</div></div></div><div id="hand-1" class="hand"></div><button id="stay-1" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(1)">Stay</button></div>
-    <div id="area-2" class="player-area" style="display:none" onclick="game.handleAreaTap(2)"><div id="f7-2" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-2" class="name-tag">P3</div><div class="score-info"><span id="t2">0</span><div id="r2" class="current-run">0</div></div></div><div id="hand-2" class="hand"></div><button id="stay-2" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(2)">Stay</button></div>
-    <div id="area-3" class="player-area" style="display:none" onclick="game.handleAreaTap(3)"><div id="f7-3" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-3" class="name-tag">P4</div><div class="score-info"><span id="t3">0</span><div id="r3" class="current-run">0</div></div></div><div id="hand-3" class="hand"></div><button id="stay-3" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(3)">Stay</button></div>
+    <div id="area-0" class="player-area" onclick="game.handleAreaTap(0)"><div id="f7-0" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-0" class="name-tag">P1</div><div class="score-info"><span id="t0">0</span><div id="r0" class="current-run">0</div></div></div><div id="hand-0" class="hand"></div><button id="stay-0" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(0)">Stay</button><div class="stayed-status">Saved</div></div>
+    <div id="area-1" class="player-area" onclick="game.handleAreaTap(1)"><div id="f7-1" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-1" class="name-tag">P2</div><div class="score-info"><span id="t1">0</span><div id="r1" class="current-run">0</div></div></div><div id="hand-1" class="hand"></div><button id="stay-1" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(1)">Stay</button><div class="stayed-status">Saved</div></div>
+    <div id="area-2" class="player-area" style="display:none" onclick="game.handleAreaTap(2)"><div id="f7-2" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-2" class="name-tag">P3</div><div class="score-info"><span id="t2">0</span><div id="r2" class="current-run">0</div></div></div><div id="hand-2" class="hand"></div><button id="stay-2" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(2)">Stay</button><div class="stayed-status">Saved</div></div>
+    <div id="area-3" class="player-area" style="display:none" onclick="game.handleAreaTap(3)"><div id="f7-3" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-3" class="name-tag">P4</div><div class="score-info"><span id="t3">0</span><div id="r3" class="current-run">0</div></div></div><div id="hand-3" class="hand"></div><button id="stay-3" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(3)">Stay</button><div class="stayed-status">Saved</div></div>
 </div>
 
 <script>
@@ -214,6 +197,7 @@ const audio = {
     f7() { this.play(1000, 'sine', 0.2, 0.1); this.play(1200, 'sine', 0.4, 0.05); },
     freeze() { this.play(250, 'sine', 0.1, 0.05); setTimeout(() => this.play(250, 'sine', 0.1, 0.05), 80); },
     flip3() { this.play(350, 'sine', 0.1, 0.04); setTimeout(() => this.play(350, 'sine', 0.1, 0.04), 80); setTimeout(() => this.play(350, 'sine', 0.1, 0.04), 160); },
+    roundEnd() { this.stay(); setTimeout(() => this.stay(), 150); },
     save() {
         if (!this.ctx) this.init();
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
@@ -255,13 +239,20 @@ const game = {
             document.getElementById(`name-${i}`).innerHTML = this.isBot[i] ? `${this.names[i]} 🤖` : this.names[i];
         }
         document.getElementById('setup-screen').style.display = 'none';
-        this.gameActive = true; this.resetInternalState(); this.buildDeck(); this.updateUI(); this.checkBotTurn();
+        this.gameActive = true; 
+        this.resetInternalState(); 
+        this.buildDeck(); 
+        this.updateUI(); 
+        this.locked = false;
+        this.checkBotTurn();
     },
     resetInternalState() {
-        this.totals = [0, 0, 0, 0]; this.round = 1; this.startingPlayerOffset = 0; this.hands = [[], [], [], []];
-        this.finished = [false, false, false, false]; this.frozen = [false, false, false, false];
+        this.totals = [0, 0, 0, 0];
+        this.round = 1; this.startingPlayerOffset = 0; this.hands = [[], [], [], []];
+        this.finished = [false, false, false, false];
+        this.frozen = [false, false, false, false];
         this.busted = [false, false, false, false]; this.stayed = [false, false, false, false];
-        this.currentPlayer = 0; this.locked = false; this.actionQueue = []; this.pendingActionCard = null;
+        this.currentPlayer = 0; this.locked = true; this.actionQueue = []; this.pendingActionCard = null;
     },
     buildDeck() {
         this.deck = [];
@@ -274,20 +265,21 @@ const game = {
     },
     shuffle() { for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; } },
     handleAreaTap(idx) { 
-        if (!this.gameActive) return; 
+        if (!this.gameActive) return;
         if (this.locked) {
             if (this.pendingActionCard && !this.finished[idx]) this.executeActionEffect(this.pendingActionCard, idx, this.currentPlayer);
             return;
         }
         if (idx !== this.currentPlayer || this.finished[idx] || this.isBot[idx]) return; 
-        this.hit(); 
+        this.hit();
     },
     handleStayClick(idx) {
         if (!this.gameActive || this.locked || this.hands[this.currentPlayer].length === 0 || this.finished[idx]) return;
         this.processStay(idx);
     },
     processStay(idx) {
-        audio.stay(); this.stayed[idx] = true; this.finished[idx] = true; 
+        audio.stay(); this.stayed[idx] = true;
+        this.finished[idx] = true; 
         this.updateUI(); setTimeout(() => this.nextTurn(), 400);
     },
     getBotBestTarget(attackerIdx, for2ndChance = false) {
@@ -298,18 +290,18 @@ const game = {
                 candidates.push({idx: i, threat: this.totals[i]}); 
             }
         }
-        if (candidates.length === 0) return attackerIdx; 
+        if (candidates.length === 0) return attackerIdx;
         return candidates.sort((a,b) => b.threat - a.threat)[0].idx;
     },
     async hit(targetIdx = null) {
         if (!this.gameActive) return;
+        this.locked = true; // Temporary lock for draw safety
         const target = targetIdx !== null ? targetIdx : this.currentPlayer;
         if (this.deck.length === 0) this.buildDeck();
-        const card = this.deck.pop(); const myHand = this.hands[target];
+        const card = this.deck.pop();
+        const myHand = this.hands[target];
         
-        // Logical check for 2nd Chance receipt
         if (card.val === '2nd CHANCE' && myHand.some(c => c.val === '2nd CHANCE')) {
-            // Check if ANYONE else can take it
             let hasEligibleRecipient = false;
             for(let i=0; i<this.playerCount; i++) {
                 if (i !== target && !this.finished[i] && !this.hands[i].some(c => c.val === '2nd CHANCE')) {
@@ -322,29 +314,35 @@ const game = {
                 if (targetIdx === null) this.resolveActionQueue();
                 return false;
             } else {
-                // Auto-discard if no one can take it
-                audio.bust(); // Play sound to indicate loss of card
+                myHand.push(card); this.render();
+                await new Promise(r => setTimeout(r, 1200));
+                myHand.pop(); this.render();
+                audio.bust();
+                this.locked = false;
                 if (targetIdx === null) this.nextTurn();
                 return false;
             }
         }
         
-        myHand.push(card); audio.card(); this.render();
+        myHand.push(card);
+        audio.card(); this.render();
 
         if (card.type === 'num') {
             if (myHand.filter(c => c.type === 'num' && c.val === card.val).length > 1) {
                 const scIdx = myHand.findIndex(c => c.val === '2nd CHANCE');
                 if (scIdx !== -1) {
-                    this.locked = true; audio.save(); await new Promise(r => setTimeout(r, 800));
+                    audio.save(); await new Promise(r => setTimeout(r, 800));
                     myHand.pop(); myHand.splice(scIdx, 1); this.locked = false; this.render(); this.updateUI();
-                    if (targetIdx === null) this.nextTurn(); return false;
+                    if (targetIdx === null) this.nextTurn();
+                    return false;
                 }
-                this.handleBust(target, card.val); return true; 
+                this.handleBust(target, card.val);
+                return true; 
             }
         }
         
         if (myHand.filter(c => c.type === 'num').length === 7) {
-            this.locked = true; audio.f7(); this.render(); 
+            audio.f7(); this.render(); 
             document.getElementById(`f7-${target}`).style.display = 'block';
             await new Promise(r => setTimeout(r, 2200));
             for(let i=0; i<this.playerCount; i++) { 
@@ -352,32 +350,37 @@ const game = {
                 else if (!this.busted[i]) this.totals[i] += this.calculateScore(i);
                 this.finished[i] = true; 
             }
-            this.updateUI(); this.checkGameEnd(); return false;
+            this.updateUI();
+            this.checkGameEnd(); return false;
         }
 
         if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
             this.actionQueue.push({card, sourcePlayer: target});
             if (targetIdx === null) this.resolveActionQueue(); return false;
         }
-        if (targetIdx === null) this.nextTurn(); return false;
+        
+        this.locked = false;
+        if (targetIdx === null) this.nextTurn();
+        return false;
     },
     async resolveActionQueue() {
         if (!this.gameActive) return;
         if (this.actionQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
         
-        this.locked = true; 
+        this.locked = true;
         const item = this.actionQueue.shift(); 
         const pIdx = item.sourcePlayer;
         await new Promise(r => setTimeout(r, 600));
 
-        if (item.card.val === 'FREEZE') audio.freeze(); else if (item.card.val === 'FLIP 3') audio.flip3();
+        if (item.card.val === 'FREEZE') audio.freeze();
+        else if (item.card.val === 'FLIP 3') audio.flip3();
 
         if (this.isBot[pIdx]) { 
-            await new Promise(r => setTimeout(r, 1000)); 
+            await new Promise(r => setTimeout(r, 1200));
             const for2nd = item.card.val === '2nd CHANCE';
-            this.executeActionEffect(item.card, this.getBotBestTarget(pIdx, for2nd), pIdx); 
+            this.executeActionEffect(item.card, this.getBotBestTarget(pIdx, for2nd), pIdx);
         } else { 
-            this.pendingActionCard = item.card; 
+            this.pendingActionCard = item.card;
             const overlay = document.getElementById('prompt-overlay');
             const msg = item.card.val === '2nd CHANCE' ? 'GIFT SECOND 2nd CHANCE' : 'CHOOSE TARGET';
             overlay.innerHTML = `${msg}<br><span style="color:var(--p4)">${item.card.val}</span>`;
@@ -386,9 +389,8 @@ const game = {
         }
     },
     async executeActionEffect(card, effectTarget, sourceIdx) {
-        // Validation for manual 2nd Chance gifting
         if (card.val === '2nd CHANCE' && (effectTarget === sourceIdx || this.finished[effectTarget] || this.hands[effectTarget].some(c => c.val === '2nd CHANCE'))) {
-            return; // Don't let player pick invalid target
+            return;
         }
 
         const sourceHand = this.hands[sourceIdx];
@@ -396,22 +398,31 @@ const game = {
         if (cardIdx > -1) sourceHand.splice(cardIdx, 1);
         
         this.pendingActionCard = null; document.getElementById('prompt-overlay').style.display = 'none';
-        
         if (card.val === 'FLIP 3') {
             for(let k=0; k<3; k++) { 
-                if (!this.gameActive || this.finished[effectTarget]) break; 
-                if (await this.hit(effectTarget)) break; 
-                await new Promise(r => setTimeout(r, 1000)); 
+                if (!this.gameActive || this.finished[effectTarget]) break;
+                let busted = await this.hit(effectTarget);
+                if (busted) {
+                    // Clear any card actions that were triggered during this flip 3 because the target is now out
+                    this.actionQueue = this.actionQueue.filter(q => q.sourcePlayer !== effectTarget);
+                    break;
+                } 
+                await new Promise(r => setTimeout(r, 1000));
             }
             this.resolveActionQueue();
         } else {
-            this.hands[effectTarget].push(card); 
+            this.hands[effectTarget].push(card);
             if (card.val === 'FREEZE') { this.frozen[effectTarget] = true; this.finished[effectTarget] = true; }
             audio.card(); this.render(); this.resolveActionQueue();
         }
     },
     handleBust(pIdx, val) {
-        this.locked = true; audio.bust(); this.busted[pIdx] = true; this.finished[pIdx] = true; this.lastBuster = pIdx; this.lastBustVal = val;
+        this.locked = true;
+        // If the player who busted had an action waiting (like a freeze they just drew), clear it
+        this.pendingActionCard = null;
+        document.getElementById('prompt-overlay').style.display = 'none';
+        
+        audio.bust(); this.busted[pIdx] = true; this.finished[pIdx] = true; this.lastBuster = pIdx; this.lastBustVal = val;
         this.render(); this.updateUI();
         setTimeout(() => { if (!this.gameActive) return; this.hands[pIdx] = []; this.lastBuster = null; this.locked = false; this.render(); this.nextTurn(); }, 1200);
     },
@@ -419,7 +430,8 @@ const game = {
         if (!this.gameActive || this.locked) return;
         if (this.finished.slice(0, this.playerCount).every(f => f)) {
             for(let i=0; i<this.playerCount; i++) if ((this.stayed[i] || this.frozen[i]) && !this.busted[i]) this.totals[i] += this.calculateScore(i);
-            this.checkGameEnd();
+            audio.roundEnd();
+            setTimeout(() => this.checkGameEnd(), 1000);
         } else {
             let next = (this.currentPlayer + 1) % this.playerCount;
             while (this.finished[next]) next = (next + 1) % this.playerCount;
@@ -439,7 +451,6 @@ const game = {
         const bustChance = this.getBustProbability(p); const uniqueCount = this.hands[p].filter(c => c.type === 'num').length;
         const hasSecondChance = this.hands[p].some(c => c.val === '2nd CHANCE');
         const othersFinished = this.finished.slice(0, this.playerCount).every((f, i) => i === p || f);
-
         if (hasSecondChance && uniqueCount < 7) { this.hit(); return; }
         if (myTotal >= 200) { this.processStay(p); return; }
         if (othersFinished && bustChance < 0.45 && currentScore < 30) { this.hit(); return; }
@@ -447,26 +458,40 @@ const game = {
         if (uniqueCount === 6 && bustChance < 0.45) { this.hit(); return; }
         if (bustChance > maxBustRisk || currentScore >= 24) this.processStay(p); else this.hit();
     },
-    checkGameEnd() { if (this.totals.some(t => t >= 200)) { this.gameActive = false; this.showVictory(); } else setTimeout(() => this.newRound(), 1000); },
+    checkGameEnd() { 
+        const maxVal = Math.max(...this.totals);
+        const topPlayers = this.totals.filter(t => t === maxVal).length;
+        if (maxVal >= 200 && topPlayers === 1) { 
+            this.gameActive = false; this.showVictory(); 
+        } else { 
+            setTimeout(() => this.newRound(), 800); 
+        } 
+    },
     showVictory() {
-        const list = document.getElementById('final-stats-list'); list.innerHTML = '';
+        const list = document.getElementById('final-stats-list');
+        list.innerHTML = '';
         let maxVal = Math.max(...this.totals); let winIdx = this.totals.indexOf(maxVal);
         this.totals.slice(0, this.playerCount).forEach((t, i) => list.innerHTML += `<li style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #334155;"><span>${this.names[i]}</span> <strong>${t}</strong></li>`);
-        document.getElementById('winner-name').innerText = `${this.names[winIdx]} WINS!`; document.getElementById('victory-screen').style.display = 'flex';
+        document.getElementById('winner-name').innerText = `${this.names[winIdx]} WINS!`;
+        document.getElementById('victory-screen').style.display = 'flex';
     },
     newRound() {
-        if (!this.gameActive) return; this.round++; this.startingPlayerOffset = (this.startingPlayerOffset + 1) % this.playerCount;
+        if (!this.gameActive) return; this.round++;
+        this.startingPlayerOffset = (this.startingPlayerOffset + 1) % this.playerCount;
         this.currentPlayer = this.startingPlayerOffset; this.hands = [[],[],[],[]]; 
-        this.finished = [false,false,false,false]; this.frozen = [false,false,false,false]; 
+        this.finished = [false,false,false,false]; this.frozen = [false,false,false,false];
         this.busted = [false,false,false,false]; this.stayed = [false,false,false,false]; 
-        this.locked = false; this.actionQueue = []; this.pendingActionCard = null; 
-        document.getElementById('prompt-overlay').style.display = 'none'; 
+        this.locked = true; this.actionQueue = []; this.pendingActionCard = null; 
+        document.getElementById('prompt-overlay').style.display = 'none';
         document.querySelectorAll('.flip7-alert').forEach(el => el.style.display = 'none'); 
-        this.render(); this.updateUI(); this.checkBotTurn();
+        this.render(); this.updateUI(); 
+        setTimeout(() => { if(this.gameActive) { this.locked = false; this.checkBotTurn(); } }, 600);
     },
     resetToStart() { 
-        this.gameActive = false; document.getElementById('victory-screen').style.display = 'none'; 
+        this.gameActive = false;
+        document.getElementById('victory-screen').style.display = 'none'; 
         document.getElementById('setup-screen').style.display = 'flex'; 
+        document.querySelectorAll('.flip7-alert').forEach(el => el.style.display = 'none');
         this.resetInternalState(); this.buildDeck(); this.render(); this.updateUI();
     },
     calculateScore(p) { 
@@ -480,7 +505,8 @@ const game = {
     render() {
         document.getElementById('deck-left').innerText = this.deck.length;
         for(let p=0; p<this.playerCount; p++) {
-            const h = document.getElementById(`hand-${p}`); h.innerHTML = '';
+            const h = document.getElementById(`hand-${p}`);
+            h.innerHTML = '';
             this.hands[p].forEach(c => {
                 let cls = c.type === 'mod' ? 'mod' : (c.type === 'spec' ? 'spec' : '');
                 if (c.val === 'FREEZE') cls += ' freeze-card'; if (c.val === 'X2') cls += ' mult-card';
@@ -496,15 +522,15 @@ const game = {
             document.getElementById(`t${p}`).innerText = this.totals[p];
             const area = document.getElementById(`area-${p}`); 
             const btn = document.getElementById(`stay-${p}`);
-            btn.style.display = (p === this.currentPlayer && !this.finished[p] && this.hands[p].length > 0 && !this.isBot[p]) ? 'block' : 'none';
+            
+            // Show stay button ONLY if it is the active human player's turn and they haven't drawn or busted
+            btn.style.display = (p === this.currentPlayer && !this.finished[p] && this.hands[p].length > 0 && !this.isBot[p] && !this.locked) ? 'block' : 'none';
+            
             area.className = 'player-area' + (p === this.currentPlayer && !this.finished[p] ? ' active-player' : '') + (this.frozen[p] ? ' frozen' : '') + (this.busted[p] ? ' bust-tint' : '') + (this.stayed[p] ? ' stay-tint' : '');
             
-            // Special Targeting Logic for 2nd Chance
             if (this.pendingActionCard) {
                 if (this.pendingActionCard.val === '2nd CHANCE') {
-                    if (p !== this.currentPlayer && !this.finished[p] && !this.hands[p].some(c => c.val === '2nd CHANCE')) {
-                        area.classList.add('target-mode');
-                    }
+                    if (p !== this.currentPlayer && !this.finished[p] && !this.hands[p].some(c => c.val === '2nd CHANCE')) area.classList.add('target-mode');
                 } else if (!this.finished[p]) {
                     area.classList.add('target-mode');
                 }
