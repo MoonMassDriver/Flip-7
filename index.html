@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Flip 7</title>
+    <style>
+        :root { 
+            --bg: #0f172a; --p1: #3b82f6; --p2: #22c55e; --p3: #e11d48; --p4: #a855f7; --gold: #fbbf24; --red: #ef4444; 
+            --ice-muted: #0c1e35; --ice-border: #0ea5e9;
+            --bust-muted: #210808; --bust-border: #7f1d1d;
+            --stay-muted: #1e293b; --stay-border: #475569;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg); color: white; margin: 0; 
+            height: 100vh; height: -webkit-fill-available;
+            overflow: hidden; display: flex; flex-direction: column; 
+        }
+        
+        #rules-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
+        .rules-content { background: #1e293b; border: 2px solid var(--gold); border-radius: 20px; padding: 25px; width: 100%; max-width: 420px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+        .rules-content h2 { color: var(--gold); margin: 0 0 15px 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(251, 191, 36, 0.3); padding-bottom: 10px; }
+        .rules-list { padding-left: 18px; font-size: 0.85rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
+        .rules-list li { margin-bottom: 10px; }
+        .rules-list strong { color: white; }
+
+        .guide-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .guide-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .mini-card { width: 34px; height: 46px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.6rem; flex-shrink: 0; text-align: center; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .mini-card.spec { background: #a855f7; border: 1px solid #6b21a8; padding: 2px; }
+        .mini-card.mod { background: #22c55e; border: 1px solid #166534; }
+        .mini-card.mult { background: var(--gold); color: black; border: 1px solid white; font-size: 0.75rem; }
+        .mini-card.ice { background: #0ea5e9; border: 1px solid white; }
+        .guide-text { font-size: 0.78rem; color: #94a3b8; }
+        .guide-text strong { color: white; display: block; margin-bottom: 2px; font-size: 0.85rem; }
+        
+        .close-rules { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        #setup-screen, #victory-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #victory-screen { display: none; }
+        h1 { color: var(--gold); margin-bottom: 20px; font-size: 2.5rem; font-weight: 200; letter-spacing: 8px; text-align: center; }
+        .setup-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 24px; backdrop-filter: blur(10px); width: 100%; max-width: 380px; text-align: center; }
+        .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .input-row input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none; }
+        .bot-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; cursor: pointer; font-size: 0.75rem; color: #94a3b8; width: 80px; text-transform: uppercase; font-weight: bold; }
+        .bot-toggle.active { background: #6366f1; color: white; border-color: #818cf8; }
+        .count-btn { flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; }
+        .count-btn.active { background: var(--gold); color: black; border-color: white; font-weight: bold; }
+        .action-btn { margin-top: 10px; width: 100%; padding: 15px; background: transparent; color: var(--gold); border: 1.5px solid var(--gold); border-radius: 12px; font-weight: 600; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; }
+        .rules-trigger { background: none; border: 1px solid rgba(255,255,255,0.3); color: #94a3b8; padding: 8px 16px; border-radius: 20px; font-size: 0.7rem; margin-top: 15px; cursor: pointer; }
+
+        #game-container { height: 85vh; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
+        .round-stats { display: flex; align-items: center; justify-content: center; gap: 15px; color: var(--gold); font-size: 0.8rem; font-weight: bold; flex-shrink: 0; opacity: 0.8; }
+        .info-btn { font-size: 1.3rem; cursor: pointer; opacity: 0.8; color: var(--gold); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        
+        .player-area { flex: 1; border: 2px solid #334155; border-radius: 14px; padding: 10px; position: relative; display: flex; flex-direction: column; overflow: hidden; transition: all 0.4s ease; background: rgba(15, 23, 42, 0.5); cursor: pointer; }
+        .player-area.active-player { border: 2px solid #ffffff; background: rgba(255,255,255,0.05); }
+        .player-area.stay-tint { border: 2px solid var(--stay-border); background: var(--stay-muted) !important; opacity: 0.6; pointer-events: none; }
+        .player-area.frozen { border: 2.5px solid var(--ice-border); background: var(--ice-muted) !important; pointer-events: none; }
+        .player-area.bust-tint { border: 2px solid var(--bust-border); background: var(--bust-muted) !important; pointer-events: none; }
+        .player-area.target-mode { border: 3px dashed var(--gold); animation: pulse 0.8s infinite; }
+        @keyframes pulse { 0% { opacity: 1; border-color: var(--gold); } 50% { opacity: 0.7; border-color: #fff; } 100% { opacity: 1; border-color: var(--gold); } }
+        .player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; pointer-events: none; }
+        .name-tag { font-weight: 900; font-size: 0.65rem; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; }
+        #area-0 .name-tag { color: var(--p1); border: 1px solid var(--p1); }
+        #area-1 .name-tag { color: var(--p2); border: 1px solid var(--p2); }
+        #area-2 .name-tag { color: var(--p3); border: 1px solid var(--p3); }
+        #area-3 .name-tag { color: var(--p4); border: 1px solid var(--p4); }
+        .current-run { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1; }
+        .hand { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; flex: 1; overflow-y: auto; pointer-events: none; }
+        .card { width: 38px; height: 52px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0; text-align: center; }
+        .card.mod { background: #22c55e; color: white; border: 1.5px solid #166534; }
+        .card.spec { background: #a855f7; color: white; font-size: 0.5rem; border: 1px solid #6b21a8; padding: 2px; line-height: 1; }
+        .card.freeze-card { background: #0ea5e9; color: white; border: 1.5px solid #ffffff; }
+        .card.mult-card { background: var(--gold); color: black; border: 1.5px solid white; font-size: 0.8rem; }
+        .card.is-match { background: var(--red) !important; color: white; animation: shake 0.4s; }
+        
+        .stay-btn-inline { 
+            position: absolute; 
+            bottom: 12px; 
+            right: 12px; 
+            background: #1e293b; 
+            color: white; 
+            border: 2px solid rgba(255,255,255,0.5); 
+            padding: 14px 24px; 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 1rem; 
+            text-transform: uppercase; 
+            display: none; 
+            cursor: pointer; 
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .active-player .stay-btn-inline:not(.locked) {
+            display: block;
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .stay-btn-inline.locked { 
+            display: block !important; 
+            background: repeating-linear-gradient(
+                45deg,
+                #0f172a,
+                #0f172a 10px,
+                #1e293b 10px,
+                #1e293b 20px
+            );
+            border: 1px solid #475569; 
+            color: #94a3b8; 
+            opacity: 0.8; 
+            cursor: not-allowed; 
+            pointer-events: none; 
+            font-size: 0.75rem;
+            padding: 8px 16px;
+        }
+        
+        .flip7-alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; font-weight: 900; padding: 10px 20px; border-radius: 8px; border: 4px solid white; z-index: 1000; display: none; }
+        #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 8px 20px; border-radius: 20px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+<div id="prompt-overlay">SELECT A TARGET</div>
+
+<div id="rules-modal" onclick="game.toggleRules(false)">
+    <div class="rules-content" onclick="event.stopPropagation()">
+        <button class="close-rules" onclick="game.toggleRules(false)">✕</button>
+        <h2>HOW TO PLAY</h2>
+        <ul class="rules-list">
+            <li><strong>WIN:</strong> First to reach <strong>200 points</strong> wins.</li>
+            <li><strong>DRAW:</strong> Tap your <strong>player box</strong> to draw a card.</li>
+            <li><strong>THE DECK:</strong> Pyramidal distribution (94 cards).</li>
+            <li><strong>BUST:</strong> Don't draw a number card you already have.</li>
+            <li><strong>BANK:</strong> Tap "Stay" to save your points and end your turn.</li>
+            <li><strong>FLIP 7:</strong> Reach 7 unique numbers for a +15 bonus.</li>
+        </ul>
+
+        <h2>CARD GUIDE</h2>
+        <div class="guide-grid">
+            <div class="guide-item">
+                <div class="mini-card spec">FLIP 3</div>
+                <div class="guide-text"><strong>Flip 3</strong> Force yourself or a target to draw 3 cards.</div>
+            </div>
+            <div class="guide-item">
+                <div class="mini-card ice">FREEZE</div>
+                <div class="guide-text"><strong>Freeze</strong> End a target's turn instantly. They bank current points.</div>
+            </div>
+            <div class="guide-item">
+                <div class="mini-card spec">2nd CHANCE</div>
+                <div class="guide-text"><strong>Second Chance</strong> Protects from one bust. Secondary draws must be gifted.</div>
+            </div>
+            <div class="guide-item">
+                <div class="mini-card mult">X2</div>
+                <div class="guide-text"><strong>X2</strong> Doubles number card points in your hand.</div>
+            </div>
+            <div class="guide-item">
+                <div class="mini-card mod">+5</div>
+                <div class="guide-text"><strong>Modifier</strong> Adds points (+2, +4, +6, +8, +10) to total.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="setup-screen">
+    <h1>FLIP 7</h1>
+    <div class="setup-card">
+        <div class="count-select">
+            <button class="count-btn active" onclick="game.setPlayerCount(2, this)">2P</button>
+            <button class="count-btn" onclick="game.setPlayerCount(3, this)">3P</button>
+            <button class="count-btn" onclick="game.setPlayerCount(4, this)">4P</button>
+        </div>
+        <div id="name-inputs">
+            <div class="input-row" id="row-0"><input type="text" id="p-input-0" placeholder="PLAYER 1"><button class="bot-toggle" id="bot-btn-0" onclick="game.toggleBot(0)">HUMAN</button></div>
+            <div class="input-row" id="row-1"><input type="text" id="p-input-1" placeholder="PLAYER 2"><button class="bot-toggle" id="bot-btn-1" onclick="game.toggleBot(1)">HUMAN</button></div>
+            <div class="input-row" id="row-2" style="display:none"><input type="text" id="p-input-2" placeholder="PLAYER 3"><button class="bot-toggle" id="bot-btn-2" onclick="game.toggleBot(2)">HUMAN</button></div>
+            <div class="input-row" id="row-3" style="display:none"><input type="text" id="p-input-3" placeholder="PLAYER 4"><button class="bot-toggle" id="bot-btn-3" onclick="game.toggleBot(3)">HUMAN</button></div>
+        </div>
+        <button class="action-btn" onclick="game.startGame()">BEGIN</button>
+        <button class="rules-trigger" onclick="game.toggleRules(true)">RULES & CARDS</button>
+    </div>
+</div>
+
+<div id="victory-screen">
+    <h1 id="winner-name">WINNER!</h1>
+    <div class="setup-card">
+        <ul id="final-stats-list" style="list-style:none; padding:0; text-align:left;"></ul>
+        <button class="action-btn" onclick="game.resetToStart()">NEW GAME</button>
+    </div>
+</div>
+
+<div id="game-container">
+    <div class="round-stats">
+        <span>ROUND <span id="round-num">1</span></span>
+        <span class="info-btn" onclick="game.toggleRules(true)">ⓘ</span>
+        <span>DECK: <span id="deck-left">94</span></span>
+    </div>
+    <div id="area-0" class="player-area" onclick="game.handleAreaTap(0)"><div id="f7-0" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-0" class="name-tag">P1</div><div class="score-info"><span id="t0">0</span><div id="r0" class="current-run">0</div></div></div><div id="hand-0" class="hand"></div><button id="stay-0" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(0)">Stay</button></div>
+    <div id="area-1" class="player-area" onclick="game.handleAreaTap(1)"><div id="f7-1" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-1" class="name-tag">P2</div><div class="score-info"><span id="t1">0</span><div id="r1" class="current-run">0</div></div></div><div id="hand-1" class="hand"></div><button id="stay-1" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(1)">Stay</button></div>
+    <div id="area-2" class="player-area" style="display:none" onclick="game.handleAreaTap(2)"><div id="f7-2" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-2" class="name-tag">P3</div><div class="score-info"><span id="t2">0</span><div id="r2" class="current-run">0</div></div></div><div id="hand-2" class="hand"></div><button id="stay-2" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(2)">Stay</button></div>
+    <div id="area-3" class="player-area" style="display:none" onclick="game.handleAreaTap(3)"><div id="f7-3" class="flip7-alert">FLIP 7! +15</div><div class="player-header"><div id="name-3" class="name-tag">P4</div><div class="score-info"><span id="t3">0</span><div id="r3" class="current-run">0</div></div></div><div id="hand-3" class="hand"></div><button id="stay-3" class="stay-btn-inline" onclick="event.stopPropagation(); game.handleStayClick(3)">Stay</button></div>
+</div>
+
+<script>
+const audio = {
+    ctx: null, 
+    init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); },
+    play(freq, type, duration, vol=0.1) {
+        if (!this.ctx) this.init();
+        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + duration);
+    },
+    card() { this.play(550, 'sine', 0.1, 0.05); }, 
+    hit() { this.play(400, 'sine', 0.08, 0.06); },
+    bust() { this.play(80, 'sine', 0.4, 0.12); }, 
+    stay() { this.play(700, 'sine', 0.1, 0.08); },
+    f7() { this.play(1000, 'sine', 0.2, 0.1); this.play(1200, 'sine', 0.4, 0.05); },
+    freeze() { this.play(250, 'sine', 0.1, 0.05); setTimeout(() => this.play(250, 'sine', 0.1, 0.05), 80); },
+    flip3() { this.play(350, 'sine', 0.1, 0.04); setTimeout(() => this.play(350, 'sine', 0.1, 0.04), 80); setTimeout(() => this.play(350, 'sine', 0.1, 0.04), 160); },
+    save() {
+        if (!this.ctx) this.init();
+        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.4);
+    }
+};
+
+const game = {
+    gameActive: false, playerCount: 2, names: [], isBot: [false, false, false, false], round: 1, totals: [0, 0, 0, 0], hands: [[], [], [], []], 
+    finished: [false, false, false, false], frozen: [false, false, false, false], busted: [false, false, false, false], stayed: [false, false, false, false],
+    currentPlayer: 0, startingPlayerOffset: 0, deck: [], locked: false, lastBuster: null, lastBustVal: null, pendingSpecCard: null, specialQueue: [], 
+
+    toggleRules(show) { document.getElementById('rules-modal').style.display = show ? 'flex' : 'none'; },
+    setPlayerCount(num, btn) {
+        this.playerCount = num;
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        for(let i=0; i<4; i++) {
+            document.getElementById(`row-${i}`).style.display = i < num ? 'flex' : 'none';
+            document.getElementById(`area-${i}`).style.display = i < num ? 'flex' : 'none';
+        }
+    },
+    toggleBot(idx) {
+        this.isBot[idx] = !this.isBot[idx];
+        const btn = document.getElementById(`bot-btn-${idx}`);
+        btn.innerText = this.isBot[idx] ? "BOT" : "HUMAN";
+        btn.className = this.isBot[idx] ? "bot-toggle active" : "bot-toggle";
+    },
+    startGame() {
+        audio.init(); this.names = [];
+        for(let i=0; i<this.playerCount; i++) {
+            let rawInput = document.getElementById(`p-input-${i}`).value.trim().toUpperCase() || `PLAYER ${i+1}`;
+            this.names.push(rawInput);
+            document.getElementById(`name-${i}`).innerHTML = this.isBot[i] ? `${this.names[i]} 🤖` : this.names[i];
+        }
+        document.getElementById('setup-screen').style.display = 'none';
+        this.gameActive = true; 
+        this.resetInternalState();
+        this.buildDeck();
+        this.updateUI(); 
+        this.checkBotTurn();
+    },
+    resetInternalState() {
+        this.totals = [0, 0, 0, 0];
+        this.round = 1;
+        this.startingPlayerOffset = 0;
+        this.hands = [[], [], [], []];
+        this.finished = [false, false, false, false];
+        this.frozen = [false, false, false, false];
+        this.busted = [false, false, false, false];
+        this.stayed = [false, false, false, false];
+        this.currentPlayer = 0;
+        this.locked = false;
+        this.specialQueue = [];
+        this.pendingSpecCard = null;
+    },
+    buildDeck() {
+        this.deck = [];
+        this.deck.push({type: 'num', val: 0}, {type: 'num', val: 1});
+        for (let i = 2; i <= 12; i++) { for (let j = 0; j < i; j++) this.deck.push({type: 'num', val: i}); }
+        [2, 4, 6, 8, 10].forEach(v => this.deck.push({type: 'mod', val: v}));
+        for(let i=0; i<3; i++) { this.deck.push({type: 'spec', val: 'FREEZE'}, {type: 'spec', val: 'FLIP 3'}, {type: 'spec', val: '2nd CHANCE'}); }
+        this.deck.push({type: 'spec', val: 'X2'});
+        this.shuffle();
+        document.getElementById('deck-left').innerText = this.deck.length;
+    },
+    shuffle() { for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; } },
+    handleAreaTap(idx) { 
+        if (!this.gameActive) return; 
+        if (this.locked) {
+            if (this.pendingSpecCard && !this.finished[idx]) this.executeSpecialEffect(this.pendingSpecCard, idx, this.currentPlayer);
+            return;
+        }
+        if (idx !== this.currentPlayer || this.finished[idx] || this.isBot[idx]) return; 
+        this.hit(); 
+    },
+    handleStayClick(idx) {
+        if (!this.gameActive || this.locked || this.hands[this.currentPlayer].length === 0 || this.finished[idx]) return;
+        this.processStay(idx);
+    },
+    processStay(idx) {
+        audio.stay(); this.stayed[idx] = true; this.finished[idx] = true; 
+        this.updateUI(); setTimeout(() => this.nextTurn(), 400);
+    },
+    getBotBestTarget(attackerIdx) {
+        let candidates = [];
+        for (let i = 0; i < this.playerCount; i++) { if (i !== attackerIdx && !this.finished[i]) candidates.push({idx: i, threat: this.totals[i]}); }
+        if (candidates.length === 0) return attackerIdx; 
+        return candidates.sort((a,b) => b.threat - a.threat)[0].idx;
+    },
+    async hit(targetIdx = null) {
+        if (!this.gameActive) return;
+        const target = targetIdx !== null ? targetIdx : this.currentPlayer;
+        if (this.deck.length === 0) this.buildDeck();
+        const card = this.deck.pop(); const myHand = this.hands[target];
+        myHand.push(card); audio.card(); this.render();
+
+        if (card.val === '2nd CHANCE' && myHand.filter(c => c.val === '2nd CHANCE').length > 1) {
+            const hasOtherPlayers = this.finished.slice(0, this.playerCount).some((f, i) => !f && i !== target);
+            if (hasOtherPlayers) {
+                this.specialQueue.push({card, sourcePlayer: target});
+                if (targetIdx === null) this.resolveSpecialQueue();
+            } else {
+                this.locked = true; audio.save(); this.updateUI(); await new Promise(r => setTimeout(r, 800));
+                myHand.pop(); this.locked = false; this.render(); this.updateUI();
+                if (targetIdx === null) this.nextTurn();
+            }
+            return false;
+        }
+        if (card.type === 'num') {
+            if (myHand.filter(c => c.type === 'num' && c.val === card.val).length > 1) {
+                const scIdx = myHand.findIndex(c => c.val === '2nd CHANCE');
+                if (scIdx !== -1) {
+                    this.locked = true; audio.save(); await new Promise(r => setTimeout(r, 800));
+                    myHand.pop(); myHand.splice(scIdx, 1); this.locked = false; this.render(); this.updateUI();
+                    if (targetIdx === null) this.nextTurn(); return false;
+                }
+                this.handleBust(target, card.val); return true; 
+            }
+        }
+        if (myHand.filter(c => c.type === 'num').length === 7) {
+            this.locked = true; audio.f7(); document.getElementById(`f7-${target}`).style.display = 'block';
+            for(let i=0; i<this.playerCount; i++) { 
+                if (i === target) this.totals[i] += this.calculateScore(i) + 15;
+                else if (!this.busted[i]) this.totals[i] += this.calculateScore(i);
+                this.finished[i] = true; 
+            }
+            this.updateUI(); this.checkGameEnd(); return false;
+        }
+        if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
+            this.specialQueue.push({card, sourcePlayer: target});
+            if (targetIdx === null) this.resolveSpecialQueue(); return false;
+        }
+        if (targetIdx === null) this.nextTurn(); return false;
+    },
+    async resolveSpecialQueue() {
+        if (!this.gameActive) return;
+        if (this.specialQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
+        this.locked = true; const item = this.specialQueue.shift(); const pIdx = item.sourcePlayer;
+        if (item.card.val === 'FREEZE') audio.freeze(); else if (item.card.val === 'FLIP 3') audio.flip3(); else audio.save();
+        if (this.isBot[pIdx]) { await new Promise(r => setTimeout(r, 1000)); this.executeSpecialEffect(item.card, this.getBotBestTarget(pIdx), pIdx); }
+        else { this.pendingSpecCard = item.card; document.getElementById('prompt-overlay').style.display = 'block'; this.updateUI(); }
+    },
+    async executeSpecialEffect(card, effectTarget, sourceIdx) {
+        const sourceHand = this.hands[sourceIdx]; const cardIdx = sourceHand.indexOf(card);
+        if (cardIdx > -1) sourceHand.splice(cardIdx, 1);
+        this.pendingSpecCard = null; document.getElementById('prompt-overlay').style.display = 'none';
+        if (card.val === 'FLIP 3') {
+            for(let k=0; k<3; k++) { if (!this.gameActive || this.finished[effectTarget]) break; if (await this.hit(effectTarget)) break; await new Promise(r => setTimeout(r, 1000)); }
+            this.resolveSpecialQueue();
+        } else {
+            this.hands[effectTarget].push(card); 
+            if (card.val === 'FREEZE') { this.frozen[effectTarget] = true; this.finished[effectTarget] = true; }
+            audio.card(); this.render(); this.resolveSpecialQueue();
+        }
+    },
+    handleBust(pIdx, val) {
+        this.locked = true; audio.bust(); this.busted[pIdx] = true; this.finished[pIdx] = true; this.lastBuster = pIdx; this.lastBustVal = val;
+        this.render(); this.updateUI();
+        setTimeout(() => { if (!this.gameActive) return; this.hands[pIdx] = []; this.lastBuster = null; this.locked = false; this.render(); this.nextTurn(); }, 1200);
+    },
+    nextTurn() {
+        if (!this.gameActive || this.locked) return;
+        if (this.finished.slice(0, this.playerCount).every(f => f)) {
+            for(let i=0; i<this.playerCount; i++) if ((this.stayed[i] || this.frozen[i]) && !this.busted[i]) this.totals[i] += this.calculateScore(i);
+            this.checkGameEnd();
+        } else {
+            let next = (this.currentPlayer + 1) % this.playerCount;
+            while (this.finished[next]) next = (next + 1) % this.playerCount;
+            this.currentPlayer = next; this.updateUI(); this.checkBotTurn();
+        }
+    },
+    checkBotTurn() { if (this.gameActive && !this.finished[this.currentPlayer] && this.isBot[this.currentPlayer] && !this.locked) setTimeout(() => this.runBotAI(), 1000); },
+    runBotAI() {
+        if (!this.gameActive || this.locked) return;
+        const p = this.currentPlayer; const score = this.calculateScore(p);
+        if (score >= 18 || (this.hands[p].length >= 4 && score >= 12)) { this.processStay(p); } else this.hit();
+    },
+    checkGameEnd() { if (this.totals.some(t => t >= 200)) { this.gameActive = false; this.showVictory(); } else setTimeout(() => this.newRound(), 1000); },
+    showVictory() {
+        const list = document.getElementById('final-stats-list'); list.innerHTML = '';
+        let maxVal = Math.max(...this.totals); let winIdx = this.totals.indexOf(maxVal);
+        this.totals.slice(0, this.playerCount).forEach((t, i) => list.innerHTML += `<li style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #334155;"><span>${this.names[i]}</span> <strong>${t}</strong></li>`);
+        document.getElementById('winner-name').innerText = `${this.names[winIdx]} WINS!`; document.getElementById('victory-screen').style.display = 'flex';
+    },
+    newRound() {
+        if (!this.gameActive) return; this.round++; 
+        this.startingPlayerOffset = (this.startingPlayerOffset + 1) % this.playerCount;
+        this.currentPlayer = this.startingPlayerOffset;
+        this.hands = [[],[],[],[]]; 
+        this.finished = [false,false,false,false]; 
+        this.frozen = [false,false,false,false]; 
+        this.busted = [false,false,false,false]; 
+        this.stayed = [false,false,false,false]; 
+        this.locked = false; this.specialQueue = [];
+        this.pendingSpecCard = null; 
+        document.getElementById('prompt-overlay').style.display = 'none'; 
+        document.querySelectorAll('.flip7-alert').forEach(el => el.style.display = 'none'); 
+        
+        for(let i=0; i<4; i++) {
+            const btn = document.getElementById(`stay-${i}`);
+            btn.innerText = "STAY";
+            btn.className = "stay-btn-inline";
+            btn.style.display = "none";
+        }
+
+        this.render(); this.updateUI(); this.checkBotTurn();
+    },
+    resetToStart() { 
+        this.gameActive = false; 
+        document.getElementById('victory-screen').style.display = 'none'; 
+        document.getElementById('setup-screen').style.display = 'flex'; 
+        this.resetInternalState();
+        this.buildDeck();
+        this.render(); 
+        this.updateUI();
+    },
+    calculateScore(p) { 
+        let numCards = this.hands[p].filter(c => c.type === 'num');
+        let total = this.hands[p].filter(c => c.type === 'num' || c.type === 'mod').reduce((s, c) => s + c.val, 0);
+        if (this.hands[p].some(c => c.val === 'X2')) {
+            let numSum = numCards.reduce((s, c) => s + c.val, 0);
+            total += numSum; 
+        }
+        return total;
+    },
+    render() {
+        document.getElementById('deck-left').innerText = this.deck.length;
+        for(let p=0; p<this.playerCount; p++) {
+            const h = document.getElementById(`hand-${p}`); h.innerHTML = '';
+            this.hands[p].forEach(c => {
+                let cls = c.type === 'mod' ? 'mod' : (c.type === 'spec' ? 'spec' : '');
+                if (c.val === 'FREEZE') cls += ' freeze-card'; if (c.val === 'X2') cls += ' mult-card';
+                if (this.lastBuster === p && c.type === 'num' && c.val === this.lastBustVal) cls += ' is-match';
+                
+                let displayVal = (c.type === 'mod') ? `+${c.val}` : c.val;
+                h.innerHTML += `<div class="card ${cls}">${displayVal}</div>`;
+            });
+            document.getElementById(`r${p}`).innerText = this.calculateScore(p);
+        }
+    },
+    updateUI() {
+        document.getElementById('round-num').innerText = this.round;
+        for(let p=0; p<this.playerCount; p++) {
+            document.getElementById(`t${p}`).innerText = this.totals[p];
+            const area = document.getElementById(`area-${p}`); const btn = document.getElementById(`stay-${p}`);
+            
+            area.className = 'player-area' + (p === this.currentPlayer && !this.finished[p] ? ' active-player' : '') + (this.frozen[p] ? ' frozen' : '') + (this.busted[p] ? ' bust-tint' : '') + (this.stayed[p] ? ' stay-tint' : '');
+            
+            if (this.pendingSpecCard && !this.finished[p]) {
+                if (this.pendingSpecCard.val !== '2nd CHANCE' || p !== this.currentPlayer) {
+                    area.classList.add('target-mode');
+                }
+            }
+            
+            if (this.stayed[p]) { 
+                btn.innerText = "SAVED"; 
+                btn.className = "stay-btn-inline locked"; 
+                btn.style.display = "block"; 
+            } 
+            else if (!this.isBot[p] && p === this.currentPlayer && this.hands[p].length > 0 && !this.finished[p]) {
+                 btn.innerText = "STAY"; 
+                 btn.className = "stay-btn-inline"; 
+                 btn.style.display = "block";
+            } else { 
+                btn.style.display = "none"; 
+            }
+        }
+    }
+};
+</script>
+</body>
+</html>
