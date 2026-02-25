@@ -21,16 +21,16 @@
         
         #rules-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
         .rules-content { background: #1e293b; border: 2px solid var(--gold); border-radius: 20px; padding: 25px; width: 100%; max-width: 420px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
-        .rules-content h2 { color: var(--gold); margin: 0 0 15px 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(251, 191, 36, 0.3); padding-bottom: 10px; }
+        .rules-content h2 { color: var(--gold); margin: 20px 0 10px 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(251, 191, 36, 0.3); padding-bottom: 5px; }
+        .rules-content h2:first-of-type { margin-top: 0; }
         .rules-list { padding-left: 18px; font-size: 0.85rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 20px; }
-        .rules-list li { margin-bottom: 10px; }
-        .rules-list strong { color: white; }
+        .rules-list li { margin-bottom: 8px; }
 
         .guide-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
         .guide-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .mini-card { width: 34px; height: 46px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.6rem; flex-shrink: 0; text-align: center; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .mini-card.spec { background: #a855f7; border: 1px solid #6b21a8; padding: 2px; }
-        .mini-card.mod { background: #22c55e; border: 1px solid #166534; }
+        .mini-card.mod { background: #22c55e; border: 1px solid #166534; font-size: 0.8rem; }
         .mini-card.mult { background: var(--gold); color: black; border: 1px solid white; font-size: 0.75rem; }
         .mini-card.ice { background: #0ea5e9; border: 1px solid white; }
         .guide-text { font-size: 0.78rem; color: #94a3b8; }
@@ -42,12 +42,15 @@
         #victory-screen { display: none; }
         h1 { color: var(--gold); margin-bottom: 20px; font-size: 2.5rem; font-weight: 200; letter-spacing: 8px; text-align: center; }
         .setup-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 24px; backdrop-filter: blur(10px); width: 100%; max-width: 380px; text-align: center; }
+        
+        .count-select { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
+        .count-btn { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; border-radius: 12px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .count-btn.active { background: var(--gold); color: black; border-color: white; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+
         .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .input-row input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none; }
+        .input-row input { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none; }
         .bot-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; cursor: pointer; font-size: 0.75rem; color: #94a3b8; width: 80px; text-transform: uppercase; font-weight: bold; }
         .bot-toggle.active { background: #6366f1; color: white; border-color: #818cf8; }
-        .count-btn { flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; }
-        .count-btn.active { background: var(--gold); color: black; border-color: white; font-weight: bold; }
         .action-btn { margin-top: 10px; width: 100%; padding: 15px; background: transparent; color: var(--gold); border: 1.5px solid var(--gold); border-radius: 12px; font-weight: 600; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; }
         .rules-trigger { background: none; border: 1px solid rgba(255,255,255,0.3); color: #94a3b8; padding: 8px 16px; border-radius: 20px; font-size: 0.7rem; margin-top: 15px; cursor: pointer; }
 
@@ -101,26 +104,8 @@
             box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
         }
 
-        .stay-btn-inline.locked { 
-            display: block !important; 
-            background: repeating-linear-gradient(
-                45deg,
-                #0f172a,
-                #0f172a 10px,
-                #1e293b 10px,
-                #1e293b 20px
-            );
-            border: 1px solid #475569; 
-            color: #94a3b8; 
-            opacity: 0.8; 
-            cursor: not-allowed; 
-            pointer-events: none; 
-            font-size: 0.75rem;
-            padding: 8px 16px;
-        }
-        
         .flip7-alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; font-weight: 900; padding: 10px 20px; border-radius: 8px; border: 4px solid white; z-index: 1000; display: none; }
-        #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 8px 20px; border-radius: 20px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 24px; border-radius: 30px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 2px solid white; text-align: center; min-width: 250px; }
     </style>
 </head>
 <body>
@@ -132,35 +117,39 @@
         <button class="close-rules" onclick="game.toggleRules(false)">✕</button>
         <h2>HOW TO PLAY</h2>
         <ul class="rules-list">
-            <li><strong>WIN:</strong> First to reach <strong>200 points</strong> wins.</li>
-            <li><strong>DRAW:</strong> Tap your <strong>player box</strong> to draw a card.</li>
-            <li><strong>THE DECK:</strong> Pyramidal distribution (94 cards).</li>
-            <li><strong>BUST:</strong> Don't draw a number card you already have.</li>
-            <li><strong>BANK:</strong> Tap "Stay" to save your points and end your turn.</li>
-            <li><strong>FLIP 7:</strong> Reach 7 unique numbers for a +15 bonus.</li>
+            <li><strong>WIN:</strong> First to 200 points.</li>
+            <li><strong>DRAW:</strong> Tap your player box to draw.</li>
+            <li><strong>BUST:</strong> Don't draw a duplicate number.</li>
+            <li><strong>DECK:</strong> Higher numbers are more common than lower numbers (e.g., twelve 12s, but only two 2s).</li>
+            <li><strong>STAY:</strong> Tap "Stay" to save points and end turn.</li>
+            <li><strong>FLIP 7:</strong> Reach 7 unique numbers for +15.</li>
         </ul>
 
-        <h2>CARD GUIDE</h2>
+        <h2>MODIFIER CARDS</h2>
         <div class="guide-grid">
+            <div class="guide-item">
+                <div class="mini-card mod">+4</div>
+                <div class="guide-text"><strong>Value Mods</strong> Adds flat points. <em>Modifiers are NOT doubled by X2 cards.</em></div>
+            </div>
+            <div class="guide-item">
+                <div class="mini-card mult">X2</div>
+                <div class="guide-text"><strong>Multiplier</strong> Doubles the value of <strong>Number Cards</strong> only.</div>
+            </div>
+        </div>
+
+        <h2>ACTION CARDS</h2>
+        <div class="guide-grid" style="margin-top:10px;">
             <div class="guide-item">
                 <div class="mini-card spec">FLIP 3</div>
                 <div class="guide-text"><strong>Flip 3</strong> Force yourself or a target to draw 3 cards.</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card ice">FREEZE</div>
-                <div class="guide-text"><strong>Freeze</strong> End a target's turn instantly. They bank current points.</div>
+                <div class="guide-text"><strong>Freeze</strong> End turn and bank current score immediately.</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card spec">2nd CHANCE</div>
-                <div class="guide-text"><strong>Second Chance</strong> Protects from one bust. Secondary draws must be gifted.</div>
-            </div>
-            <div class="guide-item">
-                <div class="mini-card mult">X2</div>
-                <div class="guide-text"><strong>X2</strong> Doubles number card points in your hand.</div>
-            </div>
-            <div class="guide-item">
-                <div class="mini-card mod">+5</div>
-                <div class="guide-text"><strong>Modifier</strong> Adds points (+2, +4, +6, +8, +10) to total.</div>
+                <div class="guide-text"><strong>2nd Chance</strong> Negates one bust. You can only hold one; if you get a second, you must gift it to someone else.</div>
             </div>
         </div>
     </div>
@@ -240,7 +229,7 @@ const audio = {
 const game = {
     gameActive: false, playerCount: 2, names: [], isBot: [false, false, false, false], round: 1, totals: [0, 0, 0, 0], hands: [[], [], [], []], 
     finished: [false, false, false, false], frozen: [false, false, false, false], busted: [false, false, false, false], stayed: [false, false, false, false],
-    currentPlayer: 0, startingPlayerOffset: 0, deck: [], locked: false, lastBuster: null, lastBustVal: null, pendingSpecCard: null, specialQueue: [], 
+    currentPlayer: 0, startingPlayerOffset: 0, deck: [], locked: false, lastBuster: null, lastBustVal: null, pendingActionCard: null, actionQueue: [], 
 
     toggleRules(show) { document.getElementById('rules-modal').style.display = show ? 'flex' : 'none'; },
     setPlayerCount(num, btn) {
@@ -266,25 +255,13 @@ const game = {
             document.getElementById(`name-${i}`).innerHTML = this.isBot[i] ? `${this.names[i]} 🤖` : this.names[i];
         }
         document.getElementById('setup-screen').style.display = 'none';
-        this.gameActive = true; 
-        this.resetInternalState();
-        this.buildDeck();
-        this.updateUI(); 
-        this.checkBotTurn();
+        this.gameActive = true; this.resetInternalState(); this.buildDeck(); this.updateUI(); this.checkBotTurn();
     },
     resetInternalState() {
-        this.totals = [0, 0, 0, 0];
-        this.round = 1;
-        this.startingPlayerOffset = 0;
-        this.hands = [[], [], [], []];
-        this.finished = [false, false, false, false];
-        this.frozen = [false, false, false, false];
-        this.busted = [false, false, false, false];
-        this.stayed = [false, false, false, false];
-        this.currentPlayer = 0;
-        this.locked = false;
-        this.specialQueue = [];
-        this.pendingSpecCard = null;
+        this.totals = [0, 0, 0, 0]; this.round = 1; this.startingPlayerOffset = 0; this.hands = [[], [], [], []];
+        this.finished = [false, false, false, false]; this.frozen = [false, false, false, false];
+        this.busted = [false, false, false, false]; this.stayed = [false, false, false, false];
+        this.currentPlayer = 0; this.locked = false; this.actionQueue = []; this.pendingActionCard = null;
     },
     buildDeck() {
         this.deck = [];
@@ -294,13 +271,12 @@ const game = {
         for(let i=0; i<3; i++) { this.deck.push({type: 'spec', val: 'FREEZE'}, {type: 'spec', val: 'FLIP 3'}, {type: 'spec', val: '2nd CHANCE'}); }
         this.deck.push({type: 'spec', val: 'X2'});
         this.shuffle();
-        document.getElementById('deck-left').innerText = this.deck.length;
     },
     shuffle() { for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; } },
     handleAreaTap(idx) { 
         if (!this.gameActive) return; 
         if (this.locked) {
-            if (this.pendingSpecCard && !this.finished[idx]) this.executeSpecialEffect(this.pendingSpecCard, idx, this.currentPlayer);
+            if (this.pendingActionCard && !this.finished[idx]) this.executeActionEffect(this.pendingActionCard, idx, this.currentPlayer);
             return;
         }
         if (idx !== this.currentPlayer || this.finished[idx] || this.isBot[idx]) return; 
@@ -314,9 +290,14 @@ const game = {
         audio.stay(); this.stayed[idx] = true; this.finished[idx] = true; 
         this.updateUI(); setTimeout(() => this.nextTurn(), 400);
     },
-    getBotBestTarget(attackerIdx) {
+    getBotBestTarget(attackerIdx, for2ndChance = false) {
         let candidates = [];
-        for (let i = 0; i < this.playerCount; i++) { if (i !== attackerIdx && !this.finished[i]) candidates.push({idx: i, threat: this.totals[i]}); }
+        for (let i = 0; i < this.playerCount; i++) { 
+            if (i !== attackerIdx && !this.finished[i]) {
+                if (for2ndChance && this.hands[i].some(c => c.val === '2nd CHANCE')) continue;
+                candidates.push({idx: i, threat: this.totals[i]}); 
+            }
+        }
         if (candidates.length === 0) return attackerIdx; 
         return candidates.sort((a,b) => b.threat - a.threat)[0].idx;
     },
@@ -325,20 +306,31 @@ const game = {
         const target = targetIdx !== null ? targetIdx : this.currentPlayer;
         if (this.deck.length === 0) this.buildDeck();
         const card = this.deck.pop(); const myHand = this.hands[target];
+        
+        // Logical check for 2nd Chance receipt
+        if (card.val === '2nd CHANCE' && myHand.some(c => c.val === '2nd CHANCE')) {
+            // Check if ANYONE else can take it
+            let hasEligibleRecipient = false;
+            for(let i=0; i<this.playerCount; i++) {
+                if (i !== target && !this.finished[i] && !this.hands[i].some(c => c.val === '2nd CHANCE')) {
+                    hasEligibleRecipient = true; break;
+                }
+            }
+
+            if (hasEligibleRecipient) {
+                this.actionQueue.push({card, sourcePlayer: target});
+                if (targetIdx === null) this.resolveActionQueue();
+                return false;
+            } else {
+                // Auto-discard if no one can take it
+                audio.bust(); // Play sound to indicate loss of card
+                if (targetIdx === null) this.nextTurn();
+                return false;
+            }
+        }
+        
         myHand.push(card); audio.card(); this.render();
 
-        if (card.val === '2nd CHANCE' && myHand.filter(c => c.val === '2nd CHANCE').length > 1) {
-            const hasOtherPlayers = this.finished.slice(0, this.playerCount).some((f, i) => !f && i !== target);
-            if (hasOtherPlayers) {
-                this.specialQueue.push({card, sourcePlayer: target});
-                if (targetIdx === null) this.resolveSpecialQueue();
-            } else {
-                this.locked = true; audio.save(); this.updateUI(); await new Promise(r => setTimeout(r, 800));
-                myHand.pop(); this.locked = false; this.render(); this.updateUI();
-                if (targetIdx === null) this.nextTurn();
-            }
-            return false;
-        }
         if (card.type === 'num') {
             if (myHand.filter(c => c.type === 'num' && c.val === card.val).length > 1) {
                 const scIdx = myHand.findIndex(c => c.val === '2nd CHANCE');
@@ -350,8 +342,11 @@ const game = {
                 this.handleBust(target, card.val); return true; 
             }
         }
+        
         if (myHand.filter(c => c.type === 'num').length === 7) {
-            this.locked = true; audio.f7(); document.getElementById(`f7-${target}`).style.display = 'block';
+            this.locked = true; audio.f7(); this.render(); 
+            document.getElementById(`f7-${target}`).style.display = 'block';
+            await new Promise(r => setTimeout(r, 2200));
             for(let i=0; i<this.playerCount; i++) { 
                 if (i === target) this.totals[i] += this.calculateScore(i) + 15;
                 else if (!this.busted[i]) this.totals[i] += this.calculateScore(i);
@@ -359,31 +354,60 @@ const game = {
             }
             this.updateUI(); this.checkGameEnd(); return false;
         }
+
         if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
-            this.specialQueue.push({card, sourcePlayer: target});
-            if (targetIdx === null) this.resolveSpecialQueue(); return false;
+            this.actionQueue.push({card, sourcePlayer: target});
+            if (targetIdx === null) this.resolveActionQueue(); return false;
         }
         if (targetIdx === null) this.nextTurn(); return false;
     },
-    async resolveSpecialQueue() {
+    async resolveActionQueue() {
         if (!this.gameActive) return;
-        if (this.specialQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
-        this.locked = true; const item = this.specialQueue.shift(); const pIdx = item.sourcePlayer;
-        if (item.card.val === 'FREEZE') audio.freeze(); else if (item.card.val === 'FLIP 3') audio.flip3(); else audio.save();
-        if (this.isBot[pIdx]) { await new Promise(r => setTimeout(r, 1000)); this.executeSpecialEffect(item.card, this.getBotBestTarget(pIdx), pIdx); }
-        else { this.pendingSpecCard = item.card; document.getElementById('prompt-overlay').style.display = 'block'; this.updateUI(); }
+        if (this.actionQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
+        
+        this.locked = true; 
+        const item = this.actionQueue.shift(); 
+        const pIdx = item.sourcePlayer;
+        await new Promise(r => setTimeout(r, 600));
+
+        if (item.card.val === 'FREEZE') audio.freeze(); else if (item.card.val === 'FLIP 3') audio.flip3();
+
+        if (this.isBot[pIdx]) { 
+            await new Promise(r => setTimeout(r, 1000)); 
+            const for2nd = item.card.val === '2nd CHANCE';
+            this.executeActionEffect(item.card, this.getBotBestTarget(pIdx, for2nd), pIdx); 
+        } else { 
+            this.pendingActionCard = item.card; 
+            const overlay = document.getElementById('prompt-overlay');
+            const msg = item.card.val === '2nd CHANCE' ? 'GIFT SECOND 2nd CHANCE' : 'CHOOSE TARGET';
+            overlay.innerHTML = `${msg}<br><span style="color:var(--p4)">${item.card.val}</span>`;
+            overlay.style.display = 'block'; 
+            this.updateUI(); 
+        }
     },
-    async executeSpecialEffect(card, effectTarget, sourceIdx) {
-        const sourceHand = this.hands[sourceIdx]; const cardIdx = sourceHand.indexOf(card);
+    async executeActionEffect(card, effectTarget, sourceIdx) {
+        // Validation for manual 2nd Chance gifting
+        if (card.val === '2nd CHANCE' && (effectTarget === sourceIdx || this.finished[effectTarget] || this.hands[effectTarget].some(c => c.val === '2nd CHANCE'))) {
+            return; // Don't let player pick invalid target
+        }
+
+        const sourceHand = this.hands[sourceIdx];
+        const cardIdx = sourceHand.indexOf(card);
         if (cardIdx > -1) sourceHand.splice(cardIdx, 1);
-        this.pendingSpecCard = null; document.getElementById('prompt-overlay').style.display = 'none';
+        
+        this.pendingActionCard = null; document.getElementById('prompt-overlay').style.display = 'none';
+        
         if (card.val === 'FLIP 3') {
-            for(let k=0; k<3; k++) { if (!this.gameActive || this.finished[effectTarget]) break; if (await this.hit(effectTarget)) break; await new Promise(r => setTimeout(r, 1000)); }
-            this.resolveSpecialQueue();
+            for(let k=0; k<3; k++) { 
+                if (!this.gameActive || this.finished[effectTarget]) break; 
+                if (await this.hit(effectTarget)) break; 
+                await new Promise(r => setTimeout(r, 1000)); 
+            }
+            this.resolveActionQueue();
         } else {
             this.hands[effectTarget].push(card); 
             if (card.val === 'FREEZE') { this.frozen[effectTarget] = true; this.finished[effectTarget] = true; }
-            audio.card(); this.render(); this.resolveSpecialQueue();
+            audio.card(); this.render(); this.resolveActionQueue();
         }
     },
     handleBust(pIdx, val) {
@@ -403,10 +427,25 @@ const game = {
         }
     },
     checkBotTurn() { if (this.gameActive && !this.finished[this.currentPlayer] && this.isBot[this.currentPlayer] && !this.locked) setTimeout(() => this.runBotAI(), 1000); },
+    getBustProbability(pIdx) {
+        const myNums = this.hands[pIdx].filter(c => c.type === 'num').map(c => c.val);
+        if (myNums.length === 0) return 0;
+        return this.deck.filter(c => c.type === 'num' && myNums.includes(c.val)).length / this.deck.length;
+    },
     runBotAI() {
         if (!this.gameActive || this.locked) return;
-        const p = this.currentPlayer; const score = this.calculateScore(p);
-        if (score >= 18 || (this.hands[p].length >= 4 && score >= 12)) { this.processStay(p); } else this.hit();
+        const p = this.currentPlayer; const currentScore = this.calculateScore(p);
+        const myTotal = this.totals[p] + currentScore; const leadTotal = Math.max(...this.totals);
+        const bustChance = this.getBustProbability(p); const uniqueCount = this.hands[p].filter(c => c.type === 'num').length;
+        const hasSecondChance = this.hands[p].some(c => c.val === '2nd CHANCE');
+        const othersFinished = this.finished.slice(0, this.playerCount).every((f, i) => i === p || f);
+
+        if (hasSecondChance && uniqueCount < 7) { this.hit(); return; }
+        if (myTotal >= 200) { this.processStay(p); return; }
+        if (othersFinished && bustChance < 0.45 && currentScore < 30) { this.hit(); return; }
+        let maxBustRisk = this.totals[p] < leadTotal - 40 ? 0.55 : (this.totals[p] === leadTotal && this.totals[p] > 100 ? 0.20 : 0.35);
+        if (uniqueCount === 6 && bustChance < 0.45) { this.hit(); return; }
+        if (bustChance > maxBustRisk || currentScore >= 24) this.processStay(p); else this.hit();
     },
     checkGameEnd() { if (this.totals.some(t => t >= 200)) { this.gameActive = false; this.showVictory(); } else setTimeout(() => this.newRound(), 1000); },
     showVictory() {
@@ -416,45 +455,27 @@ const game = {
         document.getElementById('winner-name').innerText = `${this.names[winIdx]} WINS!`; document.getElementById('victory-screen').style.display = 'flex';
     },
     newRound() {
-        if (!this.gameActive) return; this.round++; 
-        this.startingPlayerOffset = (this.startingPlayerOffset + 1) % this.playerCount;
-        this.currentPlayer = this.startingPlayerOffset;
-        this.hands = [[],[],[],[]]; 
-        this.finished = [false,false,false,false]; 
-        this.frozen = [false,false,false,false]; 
-        this.busted = [false,false,false,false]; 
-        this.stayed = [false,false,false,false]; 
-        this.locked = false; this.specialQueue = [];
-        this.pendingSpecCard = null; 
+        if (!this.gameActive) return; this.round++; this.startingPlayerOffset = (this.startingPlayerOffset + 1) % this.playerCount;
+        this.currentPlayer = this.startingPlayerOffset; this.hands = [[],[],[],[]]; 
+        this.finished = [false,false,false,false]; this.frozen = [false,false,false,false]; 
+        this.busted = [false,false,false,false]; this.stayed = [false,false,false,false]; 
+        this.locked = false; this.actionQueue = []; this.pendingActionCard = null; 
         document.getElementById('prompt-overlay').style.display = 'none'; 
         document.querySelectorAll('.flip7-alert').forEach(el => el.style.display = 'none'); 
-        
-        for(let i=0; i<4; i++) {
-            const btn = document.getElementById(`stay-${i}`);
-            btn.innerText = "STAY";
-            btn.className = "stay-btn-inline";
-            btn.style.display = "none";
-        }
-
         this.render(); this.updateUI(); this.checkBotTurn();
     },
     resetToStart() { 
-        this.gameActive = false; 
-        document.getElementById('victory-screen').style.display = 'none'; 
+        this.gameActive = false; document.getElementById('victory-screen').style.display = 'none'; 
         document.getElementById('setup-screen').style.display = 'flex'; 
-        this.resetInternalState();
-        this.buildDeck();
-        this.render(); 
-        this.updateUI();
+        this.resetInternalState(); this.buildDeck(); this.render(); this.updateUI();
     },
     calculateScore(p) { 
         let numCards = this.hands[p].filter(c => c.type === 'num');
-        let total = this.hands[p].filter(c => c.type === 'num' || c.type === 'mod').reduce((s, c) => s + c.val, 0);
-        if (this.hands[p].some(c => c.val === 'X2')) {
-            let numSum = numCards.reduce((s, c) => s + c.val, 0);
-            total += numSum; 
-        }
-        return total;
+        let modCards = this.hands[p].filter(c => c.type === 'mod');
+        let numTotal = numCards.reduce((s, c) => s + c.val, 0);
+        let modTotal = modCards.reduce((s, c) => s + c.val, 0);
+        if (this.hands[p].some(c => c.val === 'X2')) return (numTotal * 2) + modTotal;
+        return numTotal + modTotal;
     },
     render() {
         document.getElementById('deck-left').innerText = this.deck.length;
@@ -464,9 +485,7 @@ const game = {
                 let cls = c.type === 'mod' ? 'mod' : (c.type === 'spec' ? 'spec' : '');
                 if (c.val === 'FREEZE') cls += ' freeze-card'; if (c.val === 'X2') cls += ' mult-card';
                 if (this.lastBuster === p && c.type === 'num' && c.val === this.lastBustVal) cls += ' is-match';
-                
-                let displayVal = (c.type === 'mod') ? `+${c.val}` : c.val;
-                h.innerHTML += `<div class="card ${cls}">${displayVal}</div>`;
+                h.innerHTML += `<div class="card ${cls}">${c.type === 'mod' ? '+'+c.val : c.val}</div>`;
             });
             document.getElementById(`r${p}`).innerText = this.calculateScore(p);
         }
@@ -475,27 +494,20 @@ const game = {
         document.getElementById('round-num').innerText = this.round;
         for(let p=0; p<this.playerCount; p++) {
             document.getElementById(`t${p}`).innerText = this.totals[p];
-            const area = document.getElementById(`area-${p}`); const btn = document.getElementById(`stay-${p}`);
-            
+            const area = document.getElementById(`area-${p}`); 
+            const btn = document.getElementById(`stay-${p}`);
+            btn.style.display = (p === this.currentPlayer && !this.finished[p] && this.hands[p].length > 0 && !this.isBot[p]) ? 'block' : 'none';
             area.className = 'player-area' + (p === this.currentPlayer && !this.finished[p] ? ' active-player' : '') + (this.frozen[p] ? ' frozen' : '') + (this.busted[p] ? ' bust-tint' : '') + (this.stayed[p] ? ' stay-tint' : '');
             
-            if (this.pendingSpecCard && !this.finished[p]) {
-                if (this.pendingSpecCard.val !== '2nd CHANCE' || p !== this.currentPlayer) {
+            // Special Targeting Logic for 2nd Chance
+            if (this.pendingActionCard) {
+                if (this.pendingActionCard.val === '2nd CHANCE') {
+                    if (p !== this.currentPlayer && !this.finished[p] && !this.hands[p].some(c => c.val === '2nd CHANCE')) {
+                        area.classList.add('target-mode');
+                    }
+                } else if (!this.finished[p]) {
                     area.classList.add('target-mode');
                 }
-            }
-            
-            if (this.stayed[p]) { 
-                btn.innerText = "SAVED"; 
-                btn.className = "stay-btn-inline locked"; 
-                btn.style.display = "block"; 
-            } 
-            else if (!this.isBot[p] && p === this.currentPlayer && this.hands[p].length > 0 && !this.finished[p]) {
-                 btn.innerText = "STAY"; 
-                 btn.className = "stay-btn-inline"; 
-                 btn.style.display = "block";
-            } else { 
-                btn.style.display = "none"; 
             }
         }
     }
