@@ -295,7 +295,7 @@ const game = {
     },
     async hit(targetIdx = null) {
         if (!this.gameActive) return;
-        this.locked = true; // Temporary lock for draw safety
+        this.locked = true; 
         const target = targetIdx !== null ? targetIdx : this.currentPlayer;
         if (this.deck.length === 0) this.buildDeck();
         const card = this.deck.pop();
@@ -311,7 +311,7 @@ const game = {
 
             if (hasEligibleRecipient) {
                 this.actionQueue.push({card, sourcePlayer: target});
-                if (targetIdx === null) this.resolveActionQueue();
+                this.resolveActionQueue();
                 return false;
             } else {
                 myHand.push(card); this.render();
@@ -356,7 +356,8 @@ const game = {
 
         if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
             this.actionQueue.push({card, sourcePlayer: target});
-            if (targetIdx === null) this.resolveActionQueue(); return false;
+            this.resolveActionQueue(); 
+            return false;
         }
         
         this.locked = false;
@@ -398,12 +399,12 @@ const game = {
         if (cardIdx > -1) sourceHand.splice(cardIdx, 1);
         
         this.pendingActionCard = null; document.getElementById('prompt-overlay').style.display = 'none';
+        
         if (card.val === 'FLIP 3') {
             for(let k=0; k<3; k++) { 
                 if (!this.gameActive || this.finished[effectTarget]) break;
                 let busted = await this.hit(effectTarget);
                 if (busted) {
-                    // Clear any card actions that were triggered during this flip 3 because the target is now out
                     this.actionQueue = this.actionQueue.filter(q => q.sourcePlayer !== effectTarget);
                     break;
                 } 
@@ -418,7 +419,6 @@ const game = {
     },
     handleBust(pIdx, val) {
         this.locked = true;
-        // If the player who busted had an action waiting (like a freeze they just drew), clear it
         this.pendingActionCard = null;
         document.getElementById('prompt-overlay').style.display = 'none';
         
@@ -523,11 +523,11 @@ const game = {
             const area = document.getElementById(`area-${p}`); 
             const btn = document.getElementById(`stay-${p}`);
             
-            // Show stay button ONLY if it is the active human player's turn and they haven't drawn or busted
             btn.style.display = (p === this.currentPlayer && !this.finished[p] && this.hands[p].length > 0 && !this.isBot[p] && !this.locked) ? 'block' : 'none';
             
             area.className = 'player-area' + (p === this.currentPlayer && !this.finished[p] ? ' active-player' : '') + (this.frozen[p] ? ' frozen' : '') + (this.busted[p] ? ' bust-tint' : '') + (this.stayed[p] ? ' stay-tint' : '');
             
+            area.classList.remove('target-mode');
             if (this.pendingActionCard) {
                 if (this.pendingActionCard.val === '2nd CHANCE') {
                     if (p !== this.currentPlayer && !this.finished[p] && !this.hands[p].some(c => c.val === '2nd CHANCE')) area.classList.add('target-mode');
