@@ -75,7 +75,6 @@
         #area-3 .name-tag { color: var(--p4); border: 1px solid var(--p4); }
         .current-run { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1; }
         
-        /* RESTORED: Cards centered instead of right-aligned */
         .hand { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: flex-start; flex: 1; overflow-y: auto; pointer-events: none; }
         
         .card { width: 38px; height: 52px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0; text-align: center; }
@@ -122,23 +121,23 @@
         <button class="close-rules" onclick="game.toggleRules(false)">✕</button>
         <h2>HOW TO PLAY</h2>
         <ul class="rules-list">
-            <li><strong>WIN:</strong> First to 200 points.</li>
-            <li><strong>DRAW:</strong> Tap your player box to draw.</li>
-            <li><strong>BUST:</strong> If you draw a duplicate Number Card, your turns end and your points for that round go to 0.</li>
-            <li><strong>DECK:</strong> Higher numbers are more common than lower numbers (e.g., twelve 12s, but only two 2s).</li>
-            <li><strong>STAY:</strong> Tap "Stay" to save points and end your turns for the round.</li>
-            <li><strong>FLIP 7:</strong> Reach 7 unique numbers for +15.</li>
+            <li><strong>WIN:</strong> First to 200 points. [cite: 92]</li>
+            <li><strong>DRAW:</strong> Tap your player box to draw. [cite: 92]</li>
+            <li><strong>BUST:</strong> If you draw a duplicate Number Card, your turns end and your points for that round go to 0. [cite: 92]</li>
+            <li><strong>DECK:</strong> Higher numbers are more common than lower numbers. [cite: 92]</li>
+            <li><strong>STAY:</strong> Tap "Stay" to save points and end your turns for the round. [cite: 92]</li>
+            <li><strong>FLIP 7:</strong> Reach 7 unique numbers for +15. [cite: 92]</li>
         </ul>
 
         <h2>MODIFIER CARDS</h2>
         <div class="guide-grid">
             <div class="guide-item">
                 <div class="mini-card mod">+4</div>
-                <div class="guide-text"><strong>Plus Points</strong> Adds points, one each in a deck, are not duplicates of Number Cards, and can't be multiplied.</div>
+                <div class="guide-text"><strong>Plus Points</strong> Adds points. [cite: 93]</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card mult">X2</div>
-                <div class="guide-text"><strong>X2</strong> Doubles the value of Number Cards. One per deck.</div>
+                <div class="guide-text"><strong>X2</strong> Doubles value of Number Cards. [cite: 94]</div>
             </div>
         </div>
 
@@ -146,15 +145,15 @@
         <div class="guide-grid" style="margin-top:10px;">
             <div class="guide-item">
                 <div class="mini-card spec">FLIP 3</div>
-                <div class="guide-text"><strong>Flip 3</strong> Force someone (or yourself) to immediately draw 3 cards.</div>
+                <div class="guide-text"><strong>Flip 3</strong> Force someone to draw 3 cards. [cite: 96]</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card ice">FREEZE</div>
-                <div class="guide-text"><strong>Freeze</strong> Lock the score and end turns of someone (or yourself) for that round.</div>
+                <div class="guide-text"><strong>Freeze</strong> Lock score and end turns. [cite: 96]</div>
             </div>
             <div class="guide-item">
                 <div class="mini-card spec">2nd CHANCE</div>
-                <div class="guide-text"><strong>2nd Chance</strong> Negates one bust. You can only hold one; if you get a second, you must gift it to someone else.</div>
+                <div class="guide-text"><strong>2nd Chance</strong> Negates one BUST. [cite: 97]</div>
             </div>
         </div>
     </div>
@@ -379,6 +378,15 @@ const game = {
             }
             this.updateUI();
             this.checkGameEnd(); return false;
+        }
+
+        // Logic fix: Handle FREEZE drawn during forced sequence (Flip 3) immediately
+        if (targetIdx !== null && card.val === 'FREEZE') {
+            this.frozen[target] = true;
+            this.finished[target] = true;
+            audio.freeze();
+            this.render();
+            return false; 
         }
 
         if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
