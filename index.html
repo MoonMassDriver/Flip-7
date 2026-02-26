@@ -75,7 +75,6 @@
         #area-3 .name-tag { color: var(--p4); border: 1px solid var(--p4); }
         .current-run { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1; }
         
-        /* Centered Hand */
         .hand { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: flex-start; flex: 1; overflow-y: auto; pointer-events: none; }
         
         .card { width: 38px; height: 52px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0; text-align: center; }
@@ -92,15 +91,7 @@
         .stay-tint .stayed-status { display: block; }
 
         .flip7-alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; font-weight: 900; padding: 10px 20px; border-radius: 8px; border: 4px solid white; z-index: 1000; display: none; }
-        
-        /* Single Line Prompt Overlay */
-        #prompt-overlay { 
-            position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
-            background: var(--gold); color: black; padding: 8px 20px; border-radius: 30px; 
-            font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            border: 2px solid white; text-align: center; 
-            min-width: 320px; font-size: 0.8rem; white-space: nowrap;
-        }
+        #prompt-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 24px; border-radius: 30px; font-weight: 900; z-index: 10000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 2px solid white; text-align: center; min-width: 250px; }
     </style>
 </head>
 <body>
@@ -279,10 +270,11 @@ const game = {
     shuffle() { for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; } },
     handleAreaTap(idx) { 
         if (!this.gameActive) return;
-        if (this.locked) {
-            if (this.pendingActionCard && !this.finished[idx]) this.executeActionEffect(this.pendingActionCard, idx, this.currentPlayer);
+        if (this.pendingActionCard && !this.finished[idx]) {
+            this.executeActionEffect(this.pendingActionCard, idx, this.currentPlayer);
             return;
         }
+        if (this.locked) return;
         if (idx !== this.currentPlayer || this.finished[idx] || this.isBot[idx]) return; 
         this.hit();
     },
@@ -373,7 +365,9 @@ const game = {
 
         if (card.val === 'FREEZE' || card.val === 'FLIP 3') {
             this.actionQueue.push({card, sourcePlayer: target});
-            this.resolveActionQueue(); 
+            // If this is a standard hit, resolve it immediately. 
+            // If it's part of a Flip 3 loop, the loop will handle the queue after all cards are dealt.
+            if (targetIdx === null) this.resolveActionQueue();
             return false;
         }
         
@@ -383,7 +377,14 @@ const game = {
     },
     async resolveActionQueue() {
         if (!this.gameActive) return;
-        if (this.actionQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
+        if (this.actionQueue.length === 0) { 
+            this.locked = false; 
+            this.updateUI(); 
+            this.nextTurn(); 
+            return; 
+        }
+        
+        if (this.pendingActionCard) return; 
         
         this.locked = true;
         const item = this.actionQueue.shift(); 
@@ -400,13 +401,8 @@ const game = {
         } else { 
             this.pendingActionCard = item.card;
             const overlay = document.getElementById('prompt-overlay');
-            
-            let msg = '';
-            if (item.card.val === '2nd CHANCE') msg = 'GIFT SECOND 2nd CHANCE';
-            else if (item.card.val === 'FREEZE') msg = 'CHOOSE TARGET TO FREEZE';
-            else if (item.card.val === 'FLIP 3') msg = 'CHOOSE TARGET TO FLIP 3';
-            
-            overlay.innerHTML = msg;
+            const msg = item.card.val === '2nd CHANCE' ? 'GIFT SECOND 2nd CHANCE' : 'CHOOSE TARGET';
+            overlay.innerHTML = `${msg}<br><span style="color:var(--p4)">${item.card.val}</span>`;
             overlay.style.display = 'block'; 
             this.updateUI(); 
         }
@@ -420,7 +416,9 @@ const game = {
         const cardIdx = sourceHand.indexOf(card);
         if (cardIdx > -1) sourceHand.splice(cardIdx, 1);
         
-        this.pendingActionCard = null; document.getElementById('prompt-overlay').style.display = 'none';
+        this.pendingActionCard = null; 
+        document.getElementById('prompt-overlay').style.display = 'none';
+
         if (card.val === 'FLIP 3') {
             for(let k=0; k<3; k++) { 
                 if (!this.gameActive || this.finished[effectTarget]) break;
@@ -449,7 +447,7 @@ const game = {
         setTimeout(() => { if (!this.gameActive) return; this.hands[pIdx] = []; this.lastBuster = null; this.locked = false; this.render(); this.nextTurn(); }, 1200);
     },
     nextTurn() {
-        if (!this.gameActive || this.locked) return;
+        if (!this.gameActive || this.locked || this.pendingActionCard || this.actionQueue.length > 0) return;
         if (this.finished.slice(0, this.playerCount).every(f => f)) {
             for(let i=0; i<this.playerCount; i++) if ((this.stayed[i] || this.frozen[i]) && !this.busted[i]) this.totals[i] += this.calculateScore(i);
             audio.roundEnd();
