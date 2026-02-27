@@ -300,9 +300,12 @@ const game = {
         this.processStay(idx);
     },
     processStay(idx) {
+        this.locked = true; // Lock immediately to prevent fast-taps
         audio.stay(); this.stayed[idx] = true;
         this.finished[idx] = true; 
-        this.updateUI(); setTimeout(() => this.nextTurn(), 400);
+        this.updateUI(); 
+        // We pass 'true' to nextTurn to tell it to ignore the lock for this specific system flow
+        setTimeout(() => this.nextTurn(true), 400);
     },
     getBotBestTarget(attackerIdx, for2ndChance = false) {
         let candidates = [];
@@ -343,7 +346,7 @@ const game = {
                 myHand.pop(); this.render();
                 audio.bust();
                 this.locked = false;
-                if (targetIdx === null) this.nextTurn();
+                if (targetIdx === null) this.nextTurn(true);
                 return false;
             }
         }
@@ -358,7 +361,7 @@ const game = {
                     audio.save();
                     await new Promise(r => setTimeout(r, 800));
                     myHand.pop(); myHand.splice(scIdx, 1); this.locked = false; this.render(); this.updateUI();
-                    if (targetIdx === null) this.nextTurn();
+                    if (targetIdx === null) this.nextTurn(true);
                     return false;
                 }
                 this.handleBust(target, card.val);
@@ -395,12 +398,12 @@ const game = {
         }
         
         this.locked = false;
-        if (targetIdx === null) this.nextTurn();
+        if (targetIdx === null) this.nextTurn(true);
         return false;
     },
     async resolveActionQueue() {
         if (!this.gameActive) return;
-        if (this.actionQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(); return; }
+        if (this.actionQueue.length === 0) { this.locked = false; this.updateUI(); this.nextTurn(true); return; }
         
         this.locked = true;
         const item = this.actionQueue.shift(); 
@@ -458,18 +461,26 @@ const game = {
         audio.bust(); this.busted[pIdx] = true; this.finished[pIdx] = true; this.lastBuster = pIdx; this.lastBustVal = val;
         this.render();
         this.updateUI();
-        setTimeout(() => { if (!this.gameActive) return; this.hands[pIdx] = []; this.lastBuster = null; this.locked = false; this.render(); this.nextTurn(); }, 1200);
+        setTimeout(() => { if (!this.gameActive) return; this.hands[pIdx] = []; this.lastBuster = null; this.locked = false; this.render(); this.nextTurn(true); }, 1200);
     },
-    nextTurn() {
-        if (!this.gameActive || this.locked) return;
+    nextTurn(overrideLock = false) {
+        if (!this.gameActive) return;
+        // overrideLock is used when nextTurn is called as part of a safe animation/state transition
+        if (this.locked && !overrideLock) return; 
+        
+        this.locked = false; // Reset lock when transitioning
+
         if (this.finished.slice(0, this.playerCount).every(f => f)) {
+            this.locked = true; 
             for(let i=0; i<this.playerCount; i++) if ((this.stayed[i] || this.frozen[i]) && !this.busted[i]) this.totals[i] += this.calculateScore(i);
             audio.roundEnd();
             setTimeout(() => this.checkGameEnd(), 1000);
         } else {
             let next = (this.currentPlayer + 1) % this.playerCount;
             while (this.finished[next]) next = (next + 1) % this.playerCount;
-            this.currentPlayer = next; this.updateUI(); this.checkBotTurn();
+            this.currentPlayer = next; 
+            this.updateUI(); 
+            this.checkBotTurn();
         }
     },
     checkBotTurn() { if (this.gameActive && !this.finished[this.currentPlayer] && this.isBot[this.currentPlayer] && !this.locked) setTimeout(() => this.runBotAI(), 1000); },
